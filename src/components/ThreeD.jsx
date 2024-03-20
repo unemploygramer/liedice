@@ -3,17 +3,71 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import Cylinder from "../components/Cylinder"
 import { useSpring, animated } from '@react-spring/three'
 import { OrbitControls } from '@react-three/drei'
+const diceSides = [
+  [0, 0, 0], // Top
+  [Math.PI / 2, 0, 0], // Front
+  [0, Math.PI / 2, 0], // Right
+  [0, -Math.PI / 2, 0], // Left
+  [-Math.PI / 2, 0, 0], // Back
+  [Math.PI, 0, 0] // Bottom
+];
+// diceRotations = {
+//   // "1": [[Math.PI / 2,0,0]],
+//   // 2: {},
+//   // 3: {},
+//   // 4: {},
+//   // 5: {},
+//   // 6: {}
+// }
+const diceRotations = {
+  "6": [[Math.PI / 2,0,0]]
+}
+function getRandomSide() {
+  const randomIndex = Math.floor(Math.random() * diceSides.length);
+  return diceSides[randomIndex];
+}
+function getNumberFromRotation(rotation) {
+  for (const [number, sideRotation] of Object.entries(diceSides)) {
+    if (
+      rotation[0].toFixed(2) === sideRotation[0].toFixed(2) &&
+      rotation[1].toFixed(2) === sideRotation[1].toFixed(2) &&
+      rotation[2].toFixed(2) === sideRotation[2].toFixed(2)
+    ) {
+      return number;
+    }
+  }
+  return null;
+}
 function Dice(props) {
   const meshRef = useRef();
   const [hovered, setHover] = useState(false);
   const [active, setActive] = useState(false);
+  const number = 6
+  const key = number.toString();
+  const DiceRot = diceRotations[key][0]
   const springs = useSpring({
-    rotation: active ? [0,0,0]: [0,Math.PI*.5,0],
+    // rotation: active ? getRandomSide(): [0,Math.PI*.5,0],
+    rotation: active ? DiceRot: [Math.PI*2, 0.3, 0],
   })
   // useFrame((state, delta) => {
   //     meshRef.current.rotation.y += delta ;
   //   meshRef.current.rotation.x += delta * 2;
   // });
+  // useFrame(() => {
+  //   const currentRotation = meshRef.current.rotation.toArray();
+  //   const currentNumber = getNumberFromRotation(currentRotation);
+  //   if (currentNumber !== null) {
+  //     console.log("Current number:", currentNumber);
+  //   }
+  // });
+  const handleClick = () => {
+    setActive(!active);
+    const currentRotation = meshRef.current.rotation.toArray();
+    const currentNumber = getNumberFromRotation(currentRotation);
+    if (currentNumber !== null) {
+      console.log("Current number:", currentNumber);
+    }
+  };
 
   return (
     <animated.mesh
@@ -21,9 +75,10 @@ function Dice(props) {
     ref={meshRef}
     rotation={springs.rotation}
     // scale={active ? 1.5 : 1}
-    onClick={(event) => setActive(!active)}
-    onPointerOver={(event) => setHover(true)}
-    onPointerOut={(event) => setHover(false)}
+    // onClick={(event) => setActive(!active)}
+    onClick={handleClick}
+    // onPointerOver={(event) => setHover(true)}
+    // onPointerOut={(event) => setHover(false)}
     
   
   >
