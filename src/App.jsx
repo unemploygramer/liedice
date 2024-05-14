@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import ThreeD from "./components/ThreeD"
 const socket = io("http://localhost:4000");
-
+import MakeaGuess from "./components/MakeaGuess"
 export default function App() {
   const [playerOneName, setPlayerOneName] = useState('');
 
@@ -11,6 +11,8 @@ export default function App() {
   const [userName, setUserName] = useState('');
   const[userRotation,setUserRotation] = useState([])
   const [firstPlayer,setFirstPlayer] = useState('')
+  const [currentGuess,setCurrentGuess] = useState({number:0,amount:0})
+  const [amountOfDice,setAmountOfDice] = useState(0)
   // Track if the player is the first player
   useEffect(() => {
     socket.on('connect', function () {
@@ -30,12 +32,18 @@ export default function App() {
       
       // Check if the current user is the first player
     });
-    socket.on("gameStarted",(data)=> {
-console.log(data,"game started")
-    // Update the userRotation state with the received rotation data
-    setUserRotation(data.rotation);
-    console.log(userRotation)
-    })
+socket.on("gameStarted",(data)=> {
+  // Update the userRotation state with the received rotation data
+  setUserRotation(data.rotation);
+  setFirstPlayer(data.firstPlayer.userName);
+  setAmountOfDice(data.amountOfDice);
+  console.log(data,"the data")
+});
+socket.on("nextPlayer",(data)=> {
+    console.log(data,"nextPlayer data")
+    setCurrentGuess(data.currentGuess)
+    setFirstPlayer(data.nextPlayer)
+    });
   }, [userName]);
 
   const handleRoomSubmit = (e) => {
@@ -71,7 +79,6 @@ console.log(data,"game started")
           onChange={(e) => setUserName(e.target.value)}
         />
 
-
 <button type='submit'>Join Room</button>
       </form>
 
@@ -82,6 +89,8 @@ console.log(data,"game started")
   </div>
 )}
 <ThreeD userRotations={userRotation}/>
+<MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} socket={socket} roomName={roomName} userName={userName}  />
+
 {firstPlayer === userName? (
   <div className='h-screen bg-green w-screen'>
 
@@ -90,6 +99,7 @@ console.log(data,"game started")
           ) : (
             <p>Player one is: {playerOneName}</p>
           )}
+
     </div>
   );
 }
