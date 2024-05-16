@@ -14,6 +14,9 @@ export default function App() {
   const [currentGuess,setCurrentGuess] = useState({number:0,amount:0})
   const [amountOfDice,setAmountOfDice] = useState(0)
   // Track if the player is the first player
+
+  console.log(firstPlayer,"the first Player")
+  console.log(userName,"the user name")
   useEffect(() => {
     socket.on('connect', function () {
       console.log('Client has connected to the server!');
@@ -34,16 +37,42 @@ export default function App() {
     });
 socket.on("gameStarted",(data)=> {
   // Update the userRotation state with the received rotation data
+  console.log(data,"game started data")
   setUserRotation(data.rotation);
-  setFirstPlayer(data.firstPlayer.userName);
+  setFirstPlayer(data.firstPlayer);
   setAmountOfDice(data.amountOfDice);
   console.log(data,"the data")
 });
 socket.on("nextPlayer",(data)=> {
     console.log(data,"nextPlayer data")
     setCurrentGuess(data.currentGuess)
-    setFirstPlayer(data.nextPlayer)
+    setFirstPlayer(data.nextPlayer.userName)
     });
+
+    socket.on("challengeResult", (data) => {
+        const { isLie, users } = data;
+        if (isLie) {
+            // Handle the case where the guess was a lie
+            console.log("The guess was a lie!");
+        } else {
+            // Handle the case where the guess was not a lie
+            console.log("The guess was not a lie!");
+        }
+
+        // Find the current user in the users array and update the userRotation state
+        const currentUser = users.find(user => user.userName === userName);
+        if (currentUser) {
+            setUserRotation(currentUser.rotation);
+        }
+    });
+socket.on("updateRotation",(data)=> {
+  console.log(data,"update rotation data");
+  console.log(data.numberOfDice,"the number of dice")
+
+  setUserRotation(data.rotation);
+  setAmountOfDice(data.numberOfDice);
+});
+
   }, [userName]);
 
   const handleRoomSubmit = (e) => {
@@ -88,9 +117,12 @@ socket.on("nextPlayer",(data)=> {
     <h2>You are currently in room: </h2>
   </div>
 )}
-<ThreeD userRotations={userRotation}/>
-<MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} socket={socket} roomName={roomName} userName={userName}  />
+<ThreeD userRotations={userRotation} amountOfDice={amountOfDice} />
+{`current bid ${currentGuess.number}: ${currentGuess.amount}`}
 
+{firstPlayer === userName && (
+  <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} socket={socket} roomName={roomName} userName={userName}  />
+)}
 {firstPlayer === userName? (
   <div className='h-screen bg-green w-screen'>
 
@@ -99,7 +131,6 @@ socket.on("nextPlayer",(data)=> {
           ) : (
             <p>Player one is: {playerOneName}</p>
           )}
-
     </div>
   );
 }
