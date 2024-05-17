@@ -73,7 +73,7 @@ function getPosition(index) {
   return positions[index];
 }
 
-const ThreeD = ({userRotations, amountOfDice}) => {
+const ThreeD = ({userRotations, myDiceAmount}) => {
   let dice1rotation = [0,0,0]
   let dice2rotation = [0,0,0]
   let dice3rotation = [0,0,0]
@@ -124,12 +124,12 @@ const ThreeD = ({userRotations, amountOfDice}) => {
       <OrbitControls />
       <pointLight position={[10, 10, 10]} />
 
-{amountOfDice > 0 && <Dice userRotations={dice1rotation}   position={[2.5, 0, 0]} />}
-{amountOfDice > 1 && <Dice userRotations={dice2rotation}   position={[-2.5, 0, 0]} />}
-{amountOfDice > 2 && <Dice userRotations={dice3rotation}   position={[0, 2.5, 0]} />}
-{amountOfDice > 3 && <Dice userRotations={dice4rotation}   position={[0, -2.5, 0]} />}
-{amountOfDice > 4 && <Dice  userRotations={dice5rotation}  position={[2.5, 2.5, 0]} />}
-{amountOfDice > 5 && <Dice userRotations={dice6rotation}   position={[0, 0, 0]} />}
+{myDiceAmount > 0 && <Dice userRotations={dice1rotation}   position={[2.5, 0, 0]} />}
+{myDiceAmount > 1 && <Dice userRotations={dice2rotation}   position={[-2.5, 0, 0]} />}
+{myDiceAmount > 2 && <Dice userRotations={dice3rotation}   position={[0, 2.5, 0]} />}
+{myDiceAmount > 3 && <Dice userRotations={dice4rotation}   position={[0, -2.5, 0]} />}
+{myDiceAmount > 4 && <Dice  userRotations={dice5rotation}  position={[2.5, 2.5, 0]} />}
+{myDiceAmount > 5 && <Dice userRotations={dice6rotation}   position={[0, 0, 0]} />}
 
 
 

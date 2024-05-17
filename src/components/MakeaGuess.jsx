@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 
-function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName}) {
+function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDiceAmount}) {
     const [visibleCard, setVisibleCard] = useState(null);
     const [selectedNumber, setSelectedNumber] = useState(null);
-console.log(userName,"username inside make a guess")
     const handleButtonClick = (number) => {
         setSelectedNumber(number);
     };
