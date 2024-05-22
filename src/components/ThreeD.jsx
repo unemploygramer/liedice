@@ -1,9 +1,9 @@
 
 import { useSpring, animated } from '@react-spring/three'
-import { Canvas, useFrame} from '@react-three/fiber'
+import { Canvas, useFrame,} from '@react-three/fiber'
 import { useRef,useState } from 'react';
 import Cylinder from "../components/Cylinder"
-import {OrbitControls} from "@react-three/drei"
+import {OrbitControls, Plane} from "@react-three/drei"
 
 function Dice(props) {
 
@@ -33,9 +33,11 @@ function Dice(props) {
       onClick={handleClick}
       onPointerOver={() => setHover(true)}
       onPointerOut={() => setHover(false)}
+        castShadow // Add this line
+
     >
       <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color={hovered ? "gray" : "#bf0a0a"} />
+      <meshStandardMaterial color={hovered ? "red" : "#bf0a0a"} />
       {[...Array(21)].map((_, index) => {
         const { position, rotation } = getPosition(index);
         return <Cylinder key={index} position={position} rotation={rotation} />;
@@ -120,16 +122,37 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
       <div className='h-64 w-screen'>
 
     <Canvas >
-      <ambientLight />
-      <OrbitControls />
-      <pointLight position={[10, 10, 10]} />
+        <directionalLight
+            position={[3.3, 1.0, 4.4]}
+            castShadow
+            intensity={.3}
+          />
+  {/* Key light */}
+  <pointLight intensity={2.0} castShadow position={[2, 2, 2]} />
 
-{myDiceAmount > 0 && <Dice userRotations={dice1rotation}   position={[2.5, 0, 0]} />}
-{myDiceAmount > 1 && <Dice userRotations={dice2rotation}   position={[-2.5, 0, 0]} />}
-{myDiceAmount > 2 && <Dice userRotations={dice3rotation}   position={[0, 2.5, 0]} />}
-{myDiceAmount > 3 && <Dice userRotations={dice4rotation}   position={[0, -2.5, 0]} />}
-{myDiceAmount > 4 && <Dice  userRotations={dice5rotation}  position={[2.5, 2.5, 0]} />}
-{myDiceAmount > 5 && <Dice userRotations={dice6rotation}   position={[0, 0, 0]} />}
+  {/* Fill light */}
+  <pointLight castShadow intensity={10.2} position={[-2, 2, 2]} />
+
+  {/* Back light */}
+  <pointLight castShadow intensity={7.0} position={[0, -2, 2]} />
+   <Plane
+        receiveShadow
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -5, 0]}
+        args={[1000, 1000]}
+      >
+        <meshStandardMaterial attach="material" color="white" />
+      </Plane>
+
+
+{/*       <pointLight castShadow position={[0, 2, 2]} /> */}
+
+{myDiceAmount > 0 && <Dice userRotations={dice1rotation} position={[2.5, 0, -1]} />}
+{myDiceAmount > 1 && <Dice userRotations={dice2rotation} position={[-2.5, 0, -1]} />}
+{myDiceAmount > 2 && <Dice userRotations={dice3rotation} position={[0, 2.5, -1]} />}
+{myDiceAmount > 3 && <Dice userRotations={dice4rotation} position={[0, -2.5, -1]} />}
+{myDiceAmount > 4 && <Dice userRotations={dice5rotation} position={[2.5, 2.5, -1]} />}
+{myDiceAmount > 5 && <Dice userRotations={dice6rotation} position={[0, 0, -1]} />}
 
 
 

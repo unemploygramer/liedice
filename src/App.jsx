@@ -14,7 +14,10 @@ export default function App() {
   const [currentGuess,setCurrentGuess] = useState({number:0,amount:0})
   const [amountOfDice,setAmountOfDice] = useState(6)
   const [myDiceAmount,setMyDiceAmount] = useState(6)
-  const [result,setResult] = useState('')
+  const [gameStarted, setGameStarted] = useState(false);
+  const [result,setResult] = useState('This is the result')
+    const [isWinner, setIsWinner] = useState(false);
+
   // Track if the player is the first player
 
 
@@ -42,27 +45,38 @@ socket.on("gameStarted",(data)=> {
   setUserRotation(data.rotation);
   setFirstPlayer(data.firstPlayer);
   setAmountOfDice(data.amountOfDice);
+    setGameStarted(true); // Set gameStarted to true when the game starts
+
 //   setMyDiceAmount(data.amountOfDice);
 });
 socket.on("nextPlayer",(data)=> {
     setCurrentGuess(data.currentGuess)
     setFirstPlayer(data.nextPlayer.userName)
+    setResult("")
     });
 
-    socket.on("challengeResult", (data) => {
-        const { isLie, users } = data;
-        if (isLie) {
-            // Handle the case where the guess was a lie
-        } else {
-            // Handle the case where the guess was not a lie
-        }
+  socket.on("challengeResult", (data) => {
+    const { isLie, users, rotation, numberOfDice, nextPlayer, totalDice, message } = data;
 
-        // Find the current user in the users array and update the userRotation state
-        const currentUser = users.find(user => user.userName === userName);
-        if (currentUser) {
-            setUserRotation(currentUser.rotation);
-        }
-    });
+    // Update the state variables with the received data
+    setUserRotation(rotation);
+    setMyDiceAmount(numberOfDice);
+    setFirstPlayer(nextPlayer);
+    setAmountOfDice(totalDice);
+    setResult(message);
+
+    if (isLie) {
+      // Handle the case where the guess was a lie
+    } else {
+      // Handle the case where the guess was not a lie
+    }
+
+    // Find the current user in the users array and update the userRotation state
+    const currentUser = users.find(user => user.userName === userName);
+    if (currentUser) {
+      setUserRotation(currentUser.rotation);
+    }
+  });
 socket.on("updateRotation",(data)=> {
 
 console.log(data,"rotation update")
@@ -72,10 +86,24 @@ console.log(data,"rotation update")
   setCurrentGuess({number:0,amount:0})
   setAmountOfDice(data.totalDice)
   setResult(data.message)
+
 });
+socket.on("gameOver",(data)=> {
+    console.log(data,"game over")
+    if(data.winner === userName) {
+      setResult("You won the game!")
+              setIsWinner(true); // Set isWinner to true when the current user wins
+
+    } else {
+      setResult(`${data.winner} the game!`)
+      setMyDiceAmount(0)
+
+    }
+
+    });
 
   }, [userName]);
-
+console.log(firstPlayer,"the first player")
   const handleRoomSubmit = (e) => {
     e.preventDefault();
     if (roomName.trim() !== '' && userName.trim() !== '') {
@@ -92,25 +120,45 @@ console.log(data,"rotation update")
   };
 
   return (
-    <div className='bg-slate-500 h-screen w-screen'>
-      <h1 className='text-red-500 text-5xl'>Lie Dice</h1>
+    <div className='  h-screen w-screen'>
       {currentRoom === "" &&(
-      <form onSubmit={handleRoomSubmit}>
-        <input
-          type='text'
-          placeholder='Enter room name'
-          value={roomName}
-          onChange={(e) => setRoomName(e.target.value)}
-        />
-        <input
-          type='text'
-          placeholder='Enter your username'
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-        />
-
-<button type='submit'>Join Room</button>
-      </form>
+<div className="flex justify-center items-center ">
+  <div className="bg-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
+<form onSubmit={handleRoomSubmit}>
+  <div className="mb-4">
+    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="roomName">
+      Room Name
+    </label>
+    <input
+      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      id="roomName"
+      type="text"
+      placeholder="Enter room name"
+      value={roomName} // Link the input to the roomName state variable
+      onChange={(e) => setRoomName(e.target.value)} // Update the roomName state variable when the input changes
+    />
+  </div>
+  <div className="mb-6">
+    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="userName">
+      Username
+    </label>
+    <input
+      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      id="userName"
+      type="text"
+      placeholder="Enter your username"
+      value={userName} // Link the input to the userName state variable
+      onChange={(e) => setUserName(e.target.value)} // Update the userName state variable when the input changes
+    />
+  </div>
+  <div className="flex items-center justify-between">
+    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+      Join Room
+    </button>
+  </div>
+</form>
+  </div>
+</div>
 
       )}
         {currentRoom && (
@@ -119,16 +167,27 @@ console.log(data,"rotation update")
   </div>
 )}
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
-{`current bid ${currentGuess.number}: ${currentGuess.amount}`}
-<h1 className="text-5xl">{result}</h1>
-{firstPlayer === userName && (
+<div className="bg-blue-500 p-4 rounded-lg shadow-md mx-auto max-w-screen-md text-center">
+  <p className="text-white font-bold">
+    {`current bid ${currentGuess.number}: ${currentGuess.amount}'s'`}
+  </p>
+</div>
+
+{firstPlayer === userName && gameStarted && (
   <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
 )}
+<div className="w-full flex justify-center items-center">
+  <h1 className="text-3xl text-center font-bold text-red-500">{result}</h1>
+</div>
+      {(firstPlayer === userName || isWinner) && gameStarted && (
+        <div className=' bg-green w-screen'>
+          <button className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
+        </div>
+      )}
 {firstPlayer === userName? (
-  <div className='h-screen bg-green w-screen'>
+  <div className=' bg-green w-screen'>
 
-            <button  onClick={startGame}>Start Game</button>
-            </div>
+<button className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>            </div>
           ) : (
             <p>Player one is: {playerOneName}</p>
           )}
