@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import ThreeD from "./components/ThreeD"
 const socket = io("http://localhost:4000");
 import MakeaGuess from "./components/MakeaGuess"
+import Table from "./components/Table"
 export default function App() {
   const [playerOneName, setPlayerOneName] = useState('');
 
@@ -17,10 +18,11 @@ export default function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [result,setResult] = useState('This is the result')
     const [isWinner, setIsWinner] = useState(false);
+    const [players, setPlayers] = useState([]);
 
   // Track if the player is the first player
 
-
+console.log(players,"players")
   useEffect(() => {
     socket.on('connect', function () {
       console.log('Client has connected to the server!');
@@ -33,6 +35,10 @@ export default function App() {
      setUserRotation(roomData.currentUser.rotation)
    setFirstPlayer(roomData.firstPlayer.userName)
 
+
+    // Update the players state variable
+    setPlayers(roomData.users);
+  });
       // setCurrentRoom(roomData);
       // console.log(roomData.currentUser.rotation,"room data")
       // setUserRotation(roomData.currentUser.rotation)
@@ -41,6 +47,7 @@ export default function App() {
     });
 socket.on("gameStarted",(data)=> {
   // Update the userRotation state with the received rotation data
+  setMyDiceAmount(6)
   console.log(data,"game started")
   setUserRotation(data.rotation);
   setFirstPlayer(data.firstPlayer);
@@ -100,7 +107,7 @@ socket.on("gameOver",(data)=> {
 
     }
 
-    });
+
 
   }, [userName]);
 console.log(firstPlayer,"the first player")
@@ -191,6 +198,7 @@ console.log(firstPlayer,"the first player")
           ) : (
             <p>Player one is: {playerOneName}</p>
           )}
+          <Table firstPlayer={firstPlayer} players={players}/>
     </div>
   );
 }
