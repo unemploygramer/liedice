@@ -1,6 +1,9 @@
 
 import { useSpring, animated } from '@react-spring/three'
-import { Canvas, useFrame,} from '@react-three/fiber'
+import { Canvas, useFrame,useLoader} from '@react-three/fiber'
+import { TextureLoader } from 'three';
+import { Object3D } from 'three';
+
 import { useRef,useState } from 'react';
 import Cylinder from "../components/Cylinder"
 import {OrbitControls, Plane} from "@react-three/drei"
@@ -116,32 +119,45 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
 
 
   }
-  
+    const texture = useLoader(TextureLoader, '/felt.jpg');
+    const targetObject = new Object3D();
+    targetObject.position.set(0, 0, -10); // Set the position of the target object
+
   return (
     <div>
       <div className='h-64 w-screen'>
 
-    <Canvas >
-        <directionalLight
-            position={[3.3, 1.0, 4.4]}
-            castShadow
-            intensity={.3}
+    <Canvas shadows >
+        <OrbitControls />
+          <directionalLight
+            position={[10, 10, 10]} // Position the key light
+            intensity={1.0} // Adjust the brightness of the key light
+            castShadow // Enable shadows for the key light
           />
-  {/* Key light */}
-  <pointLight intensity={2.0} castShadow position={[2, 2, 2]} />
-
-  {/* Fill light */}
-  <pointLight castShadow intensity={10.2} position={[-2, 2, 2]} />
-
-  {/* Back light */}
-  <pointLight castShadow intensity={7.0} position={[0, -2, 2]} />
-   <Plane
+          <directionalLight
+            position={[-10, 10, 10]} // Position the fill light
+            intensity={0.7} // Adjust the brightness of the fill light
+            castShadow // Enable shadows for the fill light
+          />
+          <directionalLight
+            position={[0, -10, 10]} // Position the back light
+            intensity={0.8} // Adjust the brightness of the back light
+            castShadow // Enable shadows for the back light
+          />
+{/*         <directionalLight */}
+{/*             position={[0, 10, 10]} // Position the light 10 units above, to the right, and in front of the center of the scene */}
+{/*             intensity={2.0} // Adjust the brightness of the light */}
+{/*             target={targetObject} // Set the target of the light to the target object */}
+{/*             castShadow */}
+  <Plane
         receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -5, 0]}
-        args={[1000, 1000]}
+        rotation={[-Math.PI / 5, 0, 0]}
+        position={[0, -8, 0]}
+        args={[30, 30]}
+          receiveShadow // Add this line
+
       >
-        <meshStandardMaterial attach="material" color="white" />
+            <meshStandardMaterial attach="material" map={texture} />
       </Plane>
 
 

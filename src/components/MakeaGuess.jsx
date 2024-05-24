@@ -24,13 +24,13 @@ console.log(number,"value inside the send guess")
         let buttons = [];
         for(let i = Math.max(2, currentGuess.number); i <= 6; i++) {
             buttons.push(
-                <button
-                    className="m-2 bg-blue-500 text-white rounded px-4 py-2 font-bold"
-                    key={i}
-                    onClick={() => handleButtonClick(i)}
-                >
-                    {i}
-                </button>
+              <button
+        className="m-2 bg-purple-400 hover:bg-gray-600 text-white rounded px-4 py-2 font-bold"
+                  key={i}
+                  onClick={() => handleButtonClick(i)}
+              >
+                  {i}
+              </button>
             );
         }
         return buttons;
@@ -46,7 +46,7 @@ const renderDiceButtons = () => {
         let buttonText = `${i} ${numberToWord(selectedNumber)}${i > 1 ? 's' : ''}`;
         buttons.push(
             <button
-                className="m-2 bg-green-500 text-white rounded px-4 py-2 font-bold"
+                className="m-2  bg-purple-800 border-2 border-purple-500 text-white rounded px-4 py-2 font-bold"
                 key={i}
                 onClick={() => sendGuess({number: selectedNumber, amount: i})}
             >
@@ -65,19 +65,21 @@ const challengeGuess = () => {
 // Add this button inside your return statement
 // <button onClick={challengeGuess}>That's a Lie!</button>
     return (
-<div className='p-4 flex  flex-col shadow-lg rounded-lg w-screen' style={{ paddingBottom: '50px' }}>
-        <div className=" w-full text-center mb-4 flex  items-center justify-center">
+        <div className="w-screen flex justify-center">
+<div className='p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-2xl  bg-gray-800' style={{ paddingBottom: '50px' }}>
+  <div className="text-center mb-4 flex items-center justify-center">
     {currentGuess.number !== 0 && currentGuess.amount !== 0 && (
-        <button className="p-4 rounded bg-red-500 text-white text-center " onClick={challengeGuess}>That's a Lie!</button>
-    )}        </div>
-        <div className="bg-indigo-300 flex  justify-center rounded">
-            {renderButtons()}
-        </div>
-        <div className=" flex flex-wrap justify-center">
-
-            {selectedNumber && renderDiceButtons()}
-            </div>
-    </div>
+      <button className="p-4 rounded bg-red-500 text-white text-center" onClick={challengeGuess}>That's a Lie!</button>
+    )}
+  </div>
+  <div className=" bg-gray-700 flex justify-center rounded">
+    {renderButtons()}
+  </div>
+  <div className="flex flex-wrap justify-center text-white">
+    {selectedNumber && renderDiceButtons()}
+  </div>
+</div>
+</div>
     );
 }
 

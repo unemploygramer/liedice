@@ -16,9 +16,10 @@ export default function App() {
   const [amountOfDice,setAmountOfDice] = useState(6)
   const [myDiceAmount,setMyDiceAmount] = useState(6)
   const [gameStarted, setGameStarted] = useState(false);
-  const [result,setResult] = useState('This is the result')
+  const [result,setResult] = useState('')
     const [isWinner, setIsWinner] = useState(false);
     const [players, setPlayers] = useState([]);
+    const [error, setError] = useState(null);
 
   // Track if the player is the first player
 
@@ -27,7 +28,12 @@ console.log(players,"players")
     socket.on('connect', function () {
       console.log('Client has connected to the server!');
     });
+  socket.on('error', (error) => {
+    // Set the error message
+    setError(error.message);
+      setCurrentRoom('');
 
+  });
     // Listen for updated room data
     socket.on('updateRoomData', (roomData) => {
 
@@ -127,43 +133,43 @@ console.log(firstPlayer,"the first player")
   };
 
   return (
-    <div className='  h-screen w-screen'>
+    <div className='  h-screen w-screen bg-felt bg-cover'>
       {currentRoom === "" &&(
-<div className="flex justify-center items-center ">
-  <div className="bg-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
-<form onSubmit={handleRoomSubmit}>
-  <div className="mb-4">
-    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="roomName">
-      Room Name
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      id="roomName"
-      type="text"
-      placeholder="Enter room name"
-      value={roomName} // Link the input to the roomName state variable
-      onChange={(e) => setRoomName(e.target.value)} // Update the roomName state variable when the input changes
-    />
-  </div>
-  <div className="mb-6">
-    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="userName">
-      Username
-    </label>
-    <input
-      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      id="userName"
-      type="text"
-      placeholder="Enter your username"
-      value={userName} // Link the input to the userName state variable
-      onChange={(e) => setUserName(e.target.value)} // Update the userName state variable when the input changes
-    />
-  </div>
-  <div className="flex items-center justify-between">
-    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
-      Join Room
-    </button>
-  </div>
-</form>
+<div className="flex justify-center items-center">
+  <div className="bg-gray-800 text-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
+    <form onSubmit={handleRoomSubmit} className="text-white">
+      <div className="mb-4">
+        <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor="roomName">
+          Room Name
+        </label>
+        <input
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+          id="roomName"
+          type="text"
+          placeholder="Enter room name"
+          value={roomName}
+          onChange={(e) => setRoomName(e.target.value)}
+        />
+      </div>
+      <div className="mb-6">
+        <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor="userName">
+          Username
+        </label>
+        <input
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-200 leading-tight focus:outline-none focus:shadow-outline bg-gray-700"
+          id="userName"
+          type="text"
+          placeholder="Enter your username"
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+        />
+      </div>
+      <div className="flex items-center justify-between">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+          Join Room
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -174,11 +180,13 @@ console.log(firstPlayer,"the first player")
   </div>
 )}
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
-<div className="bg-blue-500 p-4 rounded-lg shadow-md mx-auto max-w-screen-md text-center">
-  <p className="text-white font-bold">
-    {`current bid ${currentGuess.number}: ${currentGuess.amount}'s'`}
-  </p>
+  {currentGuess.amount > 0 && (
+<div className="bg-blue-500 p-4 rounded-lg shadow-md mx-auto max-w-xl text-center font-bold w-80">
+    <p className="text-white">
+      {`current bid ${currentGuess.number}: ${currentGuess.amount}'s'`}
+    </p>
 </div>
+  )}
 
 {firstPlayer === userName && gameStarted && (
   <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
@@ -186,19 +194,23 @@ console.log(firstPlayer,"the first player")
 <div className="w-full flex justify-center items-center">
   <h1 className="text-3xl text-center font-bold text-red-500">{result}</h1>
 </div>
-      {(firstPlayer === userName || isWinner) && gameStarted && (
+      {(firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
         <div className=' bg-green w-screen'>
           <button className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
         </div>
       )}
-{firstPlayer === userName? (
-  <div className=' bg-green w-screen'>
 
-<button className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>            </div>
-          ) : (
-            <p>Player one is: {playerOneName}</p>
-          )}
+           <div className="flex justify-center items-center ">
+             {error ? (
+               <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                 <h1 className="text-red-500 text-2xl font-bold">{error}</h1>
+               </div>
+             ) : null}
+           </div>
+
+
           <Table firstPlayer={firstPlayer} players={players}/>
+
     </div>
   );
 }
