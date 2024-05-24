@@ -136,7 +136,7 @@ console.log(firstPlayer,"the first player")
     <div className='  h-screen w-screen bg-felt bg-cover'>
       {currentRoom === "" &&(
 <div className="flex justify-center items-center">
-  <div className="bg-gray-800 text-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
+  <div className="bg-gray-800 mt-6 text-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
     <form onSubmit={handleRoomSubmit} className="text-white">
       <div className="mb-4">
         <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor="roomName">
@@ -165,7 +165,7 @@ console.log(firstPlayer,"the first player")
         />
       </div>
       <div className="flex items-center justify-between">
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+        <button className=" text-md bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
           Join Room
         </button>
       </div>
@@ -174,11 +174,7 @@ console.log(firstPlayer,"the first player")
 </div>
 
       )}
-        {currentRoom && (
-  <div>
-    <h2>You are currently in room: </h2>
-  </div>
-)}
+
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
   {currentGuess.amount > 0 && (
 <div className="bg-blue-500 p-4 rounded-lg shadow-md mx-auto max-w-xl text-center font-bold w-80">
@@ -191,12 +187,16 @@ console.log(firstPlayer,"the first player")
 {firstPlayer === userName && gameStarted && (
   <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
 )}
-<div className="w-full flex justify-center items-center">
-  <h1 className="text-3xl text-center font-bold text-red-500">{result}</h1>
-</div>
+{result && (
+  <div className="w-full flex justify-center items-center fixed top-24 ">
+    <div className="bg-gray-800 rounded p-4 max-w-xl" >
+      <h1 className="text-4xl text-center font-bold text-red-500">{result}</h1>
+    </div>
+  </div>
+)}
       {(firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
-        <div className=' bg-green w-screen'>
-          <button className="mx-auto bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
+        <div className=' bg-green w-screen flex justify-center '>
+          <button className="m-4 bg-purple-700 hover:bg-purple-700 text-2xl  text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
         </div>
       )}
 
@@ -208,9 +208,9 @@ console.log(firstPlayer,"the first player")
              ) : null}
            </div>
 
-
-          <Table firstPlayer={firstPlayer} players={players}/>
-
+<div className=" fixed w-screen bottom-12">
+          <Table currentRoom={currentRoom} firstPlayer={firstPlayer} players={players}/>
+</div>
     </div>
   );
 }

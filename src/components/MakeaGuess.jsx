@@ -65,18 +65,24 @@ const challengeGuess = () => {
 // Add this button inside your return statement
 // <button onClick={challengeGuess}>That's a Lie!</button>
     return (
-        <div className="w-screen flex justify-center">
-<div className='p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-2xl  bg-gray-800' style={{ paddingBottom: '50px' }}>
+        <div className="w-screen flex justify-center mt-10">
+<div className='p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-[620px]  bg-gray-800' style={{ paddingBottom: '50px' }}>
+    <div className="w-full  flex justify-center">
+    <h2 className="text-white  font-bold">Make Bid</h2>
+    </div>
   <div className="text-center mb-4 flex items-center justify-center">
     {currentGuess.number !== 0 && currentGuess.amount !== 0 && (
       <button className="p-4 rounded bg-red-500 text-white text-center" onClick={challengeGuess}>That's a Lie!</button>
     )}
   </div>
   <div className=" bg-gray-700 flex justify-center rounded">
+
     {renderButtons()}
   </div>
-  <div className="flex flex-wrap justify-center text-white">
+  <div className="flex flex-wrap justify-center text-white max-h-[140px] overflow-y-auto  w-full ">
+
     {selectedNumber && renderDiceButtons()}
+
   </div>
 </div>
 </div>
