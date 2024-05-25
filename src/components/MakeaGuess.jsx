@@ -65,7 +65,7 @@ const challengeGuess = () => {
 // Add this button inside your return statement
 // <button onClick={challengeGuess}>That's a Lie!</button>
     return (
-        <div className="w-screen flex justify-center mt-10">
+        <div className="w-screen flex justify-center mt-2">
 <div className='p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-[620px]  bg-gray-800' style={{ paddingBottom: '50px' }}>
     <div className="w-full  flex justify-center">
     <h2 className="text-white  font-bold">Make Bid</h2>

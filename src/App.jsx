@@ -20,10 +20,10 @@ export default function App() {
     const [isWinner, setIsWinner] = useState(false);
     const [players, setPlayers] = useState([]);
     const [error, setError] = useState(null);
-
+    const [loserList,setLoserList] = useState([])
+console.log(loserList,"the loser list")
   // Track if the player is the first player
 
-console.log(players,"players")
   useEffect(() => {
     socket.on('connect', function () {
       console.log('Client has connected to the server!');
@@ -45,11 +45,7 @@ console.log(players,"players")
     // Update the players state variable
     setPlayers(roomData.users);
   });
-      // setCurrentRoom(roomData);
-      // console.log(roomData.currentUser.rotation,"room data")
-      // setUserRotation(roomData.currentUser.rotation)
-      
-      // Check if the current user is the first player
+
     });
 socket.on("gameStarted",(data)=> {
   // Update the userRotation state with the received rotation data
@@ -93,9 +89,10 @@ socket.on("nextPlayer",(data)=> {
 socket.on("updateRotation",(data)=> {
 
 console.log(data,"rotation update")
+setLoserList(data.usersOut)
   setUserRotation(data.rotation);
   setMyDiceAmount(data.numberOfDice);
-  setFirstPlayer(data.nextPlayer);
+  setFirstPlayer(data.nextPlayerName);
   setCurrentGuess({number:0,amount:0})
   setAmountOfDice(data.totalDice)
   setResult(data.message)
@@ -116,7 +113,7 @@ socket.on("gameOver",(data)=> {
 
 
   }, [userName]);
-console.log(firstPlayer,"the first player")
+
   const handleRoomSubmit = (e) => {
     e.preventDefault();
     if (roomName.trim() !== '' && userName.trim() !== '') {
@@ -177,9 +174,9 @@ console.log(firstPlayer,"the first player")
 
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
   {currentGuess.amount > 0 && (
-<div className="bg-blue-500 p-4 rounded-lg shadow-md mx-auto max-w-xl text-center font-bold w-80">
-    <p className="text-white">
-      {`current bid ${currentGuess.number}: ${currentGuess.amount}'s'`}
+<div className="bg-gray-800 p-4 rounded-lg shadow-md mx-auto max-w-xl text-center  text-white font-bold w-80 mt-6">
+    <p className="text-2xl">
+      {`${firstPlayer} ${currentGuess.number}: ${currentGuess.amount}'s'`}
     </p>
 </div>
   )}
@@ -188,9 +185,9 @@ console.log(firstPlayer,"the first player")
   <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
 )}
 {result && (
-  <div className="w-full flex justify-center items-center fixed top-24 ">
+  <div className="w-full flex justify-center items-center ">
     <div className="bg-gray-800 rounded p-4 max-w-xl" >
-      <h1 className="text-4xl text-center font-bold text-red-500">{result}</h1>
+      <h1 className="text-2xl text-center font-bold text-red-500">{result}</h1>
     </div>
   </div>
 )}
@@ -208,9 +205,11 @@ console.log(firstPlayer,"the first player")
              ) : null}
            </div>
 
-<div className=" fixed w-screen bottom-12">
-          <Table currentRoom={currentRoom} firstPlayer={firstPlayer} players={players}/>
-</div>
+{currentRoom && (
+  <div className=" fixed w-screen bottom-6">
+    <Table currentRoom={currentRoom} firstPlayer={firstPlayer} players={players} loserList={loserList}/>
+  </div>
+)}
     </div>
   );
 }
