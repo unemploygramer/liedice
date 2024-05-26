@@ -4,7 +4,7 @@ import { Canvas, useFrame,useLoader} from '@react-three/fiber'
 import { TextureLoader } from 'three';
 import { Object3D } from 'three';
 
-import { useRef,useState } from 'react';
+import { useRef,useState,Suspense } from 'react';
 import Cylinder from "../components/Cylinder"
 import {OrbitControls, Plane} from "@react-three/drei"
 
@@ -126,7 +126,7 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
   return (
     <div>
       <div className='h-64 w-screen'>
-
+      <Suspense fallback={<div className="bg-red-500 h-screen w-screen">Loading...</div>}>
     <Canvas shadows >
         <OrbitControls />
           <directionalLight
@@ -175,6 +175,7 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
 
 
     </Canvas>
+    </Suspense>
       </div>
     </div>
   );
