@@ -1,12 +1,13 @@
 import React from 'react';
-const Table = ({ players, firstPlayer ,currentRoom, loserList}) => {
+
+const Table = ({ players, firstPlayer, currentRoom, loserList }) => {
   return (
-    <div className="flex flex-col items-center justify-center ">
-      <div className="bg-green-500 border-2 border-white rounded-full w-48 h-48 md:w-48 md:h-48 flex items-center justify-center relative">
+    <div className="flex fixed bottom-0  lg:right-0 w-screen lg:w-auto justify-center lg:justify-end  mb-12 mr-24">
+      <div className="bg-green-500 border-2 border-white rounded-full w-32 h-32 lg:w-64 lg:h-64 flex items-center justify-center relative">
         {players.map((player, index) => (
           <div
             key={index}
-            className={`absolute text-center text-xl  font-bold text-white rounded p-1 min-w-[50px] md:p-2 flex items-center justify-center ${player === firstPlayer ? 'bg-red-500' : 'bg-purple-500'}`}
+            className={`absolute text-center text-sm lg:text-lg font-bold text-white rounded p-1 min-w-[50px] flex items-center justify-center ${player === firstPlayer ? 'bg-purple-700' : 'bg-gray-800'}`}
             style={{
               top: `${50 + Math.sin((index / players.length) * 2 * Math.PI) * 50}%`,
               left: `${50 + Math.cos((index / players.length) * 2 * Math.PI) * 50}%`,
@@ -17,7 +18,7 @@ const Table = ({ players, firstPlayer ,currentRoom, loserList}) => {
             {loserList.includes(player) && <div className="absolute text-red-500 text-2xl font-bold">X</div>}
           </div>
         ))}
-        <div className="absolute text-center text-black font-bold text-xl md:text-2xl rounded-full w-12 h-12 md:w-24 md:h-24 flex items-center justify-center ">
+        <div className="absolute text-center text-black font-bold text-sm rounded-full w-8 h-8 flex items-center justify-center ">
           {currentRoom}
         </div>
       </div>

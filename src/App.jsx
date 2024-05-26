@@ -21,96 +21,113 @@ export default function App() {
     const [players, setPlayers] = useState([]);
     const [error, setError] = useState(null);
     const [loserList,setLoserList] = useState([])
-console.log(loserList,"the loser list")
+    const [guesser,setGuesser] = useState('')
+
   // Track if the player is the first player
 
   useEffect(() => {
-    socket.on('connect', function () {
-      console.log('Client has connected to the server!');
-    });
-  socket.on('error', (error) => {
-    // Set the error message
-    setError(error.message);
-      setCurrentRoom('');
 
-  });
-    // Listen for updated room data
-    socket.on('updateRoomData', (roomData) => {
+const handleConnect = () => {
+  // Insert your existing logic for handling a successful connection here
+  console.log("connected")
+};
 
-      setPlayerOneName(roomData.firstPlayer.userName);
-     setUserRotation(roomData.currentUser.rotation)
-   setFirstPlayer(roomData.firstPlayer.userName)
+const handleError = (error) => {
+  // Insert your existing logic for handling an error here
+      // Set the error message
+      setError(error.message);
+        setCurrentRoom('');
+};
 
+const handleUpdateRoomData = (roomData) => {
+  // Insert your existing logic for handling updated room data here
 
-    // Update the players state variable
-    setPlayers(roomData.users);
-  });
-
-    });
-socket.on("gameStarted",(data)=> {
-  // Update the userRotation state with the received rotation data
-  setMyDiceAmount(6)
-  console.log(data,"game started")
-  setUserRotation(data.rotation);
-  setFirstPlayer(data.firstPlayer);
-  setAmountOfDice(data.amountOfDice);
-    setGameStarted(true); // Set gameStarted to true when the game starts
-
-//   setMyDiceAmount(data.amountOfDice);
-});
-socket.on("nextPlayer",(data)=> {
-    setCurrentGuess(data.currentGuess)
-    setFirstPlayer(data.nextPlayer.userName)
-    setResult("")
-    });
-
-  socket.on("challengeResult", (data) => {
-    const { isLie, users, rotation, numberOfDice, nextPlayer, totalDice, message } = data;
-
-    // Update the state variables with the received data
-    setUserRotation(rotation);
-    setMyDiceAmount(numberOfDice);
-    setFirstPlayer(nextPlayer);
-    setAmountOfDice(totalDice);
-    setResult(message);
-
-    if (isLie) {
-      // Handle the case where the guess was a lie
-    } else {
-      // Handle the case where the guess was not a lie
-    }
-
-    // Find the current user in the users array and update the userRotation state
-    const currentUser = users.find(user => user.userName === userName);
-    if (currentUser) {
-      setUserRotation(currentUser.rotation);
-    }
-  });
-socket.on("updateRotation",(data)=> {
-
-console.log(data,"rotation update")
-setLoserList(data.usersOut)
-  setUserRotation(data.rotation);
-  setMyDiceAmount(data.numberOfDice);
-  setFirstPlayer(data.nextPlayerName);
-  setCurrentGuess({number:0,amount:0})
-  setAmountOfDice(data.totalDice)
-  setResult(data.message)
-
-});
-socket.on("gameOver",(data)=> {
-    console.log(data,"game over")
-    if(data.winner === userName) {
-      setResult("You won the game!")
-              setIsWinner(true); // Set isWinner to true when the current user wins
-
-    } else {
-      setResult(`${data.winner} the game!`)
-      setMyDiceAmount(0)
-
-    }
+        setPlayerOneName(roomData.firstPlayer.userName);
+       setUserRotation(roomData.currentUser.rotation)
+     setFirstPlayer(roomData.firstPlayer.userName)
 
 
+      // Update the players state variable
+      setPlayers(roomData.users);
+};
+
+const handleGameStarted = (data) => {
+  // Insert your existing logic for handling the start of a game here
+    // Update the userRotation state with the received rotation data
+    setMyDiceAmount(6)
+
+    setUserRotation(data.rotation);
+    setFirstPlayer(data.firstPlayer);
+    setAmountOfDice(data.amountOfDice);
+      setGameStarted(true); // Set gameStarted to true when the game starts
+
+  //   setMyDiceAmount(data.amountOfDice);
+};
+
+const handleNextPlayer = (data) => {
+  // Insert your existing logic for handling the next player here
+      setCurrentGuess(data.currentGuess)
+      setFirstPlayer(data.nextPlayer.userName)
+          setGuesser(data.guesser) // Add this line
+
+      setResult("")
+};
+
+const handleChallengeResult = (data) => {
+  // Insert your existing logic for handling the result of a challenge here
+      const { isLie, users, rotation, numberOfDice, nextPlayer, totalDice, message } = data;
+  console.log(data,"challenge result")
+      // Update the state variables with the received data
+      setUserRotation(rotation);
+      setMyDiceAmount(numberOfDice);
+      setFirstPlayer(nextPlayer);
+      setAmountOfDice(totalDice);
+      setResult(message);
+};
+
+const handleUpdateRotation = (data) => {
+  // Insert your existing logic for handling an update to the rotation here
+  console.log(data,"rotation update")
+  setLoserList(data.usersOut)
+    setUserRotation(data.rotation);
+    setMyDiceAmount(data.numberOfDice);
+    setFirstPlayer(data.nextPlayerName);
+    setCurrentGuess({number:0,amount:0})
+    setAmountOfDice(data.totalDice)
+    setResult(data.message)
+};
+
+const handleGameOver = (data) => {
+  // Insert your existing logic for handling the end of a game here
+      console.log(data,"game over")
+      if(data.winner === userName) {
+        setResult("You won the game!")
+                setIsWinner(true); // Set isWinner to true when the current user wins
+
+      } else {
+        setResult(`${data.winner} the game!`)
+        setMyDiceAmount(0)
+
+      }
+};
+  socket.on('connect', handleConnect);
+  socket.on('error', handleError);
+  socket.on('updateRoomData', handleUpdateRoomData);
+  socket.on('gameStarted', handleGameStarted);
+  socket.on('nextPlayer', handleNextPlayer);
+  socket.on('challengeResult', handleChallengeResult);
+  socket.on('updateRotation', handleUpdateRotation);
+  socket.on('gameOver', handleGameOver);
+  return () => {
+    socket.off('connect', handleConnect);
+    socket.off('error', handleError);
+    socket.off('updateRoomData', handleUpdateRoomData);
+    socket.off('gameStarted', handleGameStarted);
+    socket.off('nextPlayer', handleNextPlayer);
+    socket.off('challengeResult', handleChallengeResult);
+    socket.off('updateRotation', handleUpdateRotation);
+    socket.off('gameOver', handleGameOver);
+  };
 
   }, [userName]);
 
@@ -133,7 +150,7 @@ socket.on("gameOver",(data)=> {
     <div className='  h-screen w-screen bg-felt bg-cover'>
       {currentRoom === "" &&(
 <div className="flex justify-center items-center">
-  <div className="bg-gray-800 mt-6 text-white p-6 rounded shadow-lg w-[80vw] max-w-2xl">
+  <div className="bg-gray-800 rounded-xl  mt-6 text-white p-6 shadow-lg w-[80vw] max-w-md">
     <form onSubmit={handleRoomSubmit} className="text-white">
       <div className="mb-4">
         <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor="roomName">
@@ -162,7 +179,7 @@ socket.on("gameOver",(data)=> {
         />
       </div>
       <div className="flex items-center justify-between">
-        <button className=" text-md bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+        <button className=" text-md bg-purple-800 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded" type="submit">
           Join Room
         </button>
       </div>
@@ -174,26 +191,34 @@ socket.on("gameOver",(data)=> {
 
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
   {currentGuess.amount > 0 && (
-<div className="bg-gray-800 p-4 rounded-lg shadow-md mx-auto max-w-xl text-center  text-white font-bold w-80 mt-6">
-    <p className="text-2xl">
-      {`${firstPlayer} ${currentGuess.number}: ${currentGuess.amount}'s'`}
+<div className="border-2 border-white bg-gray-800 p-2 rounded-lg shadow-md mx-auto text-center text-white font-bold max-w-[300px]  mt-2 flex flex-row items-center justify-center">
+    <div className="text-gray-500 text-lg">
+        {guesser}
+    </div>
+    <p className="text-xl text-purple-400">
+        {`"${currentGuess.amount} ${currentGuess.number}'s"`}
     </p>
 </div>
   )}
 
-{firstPlayer === userName && gameStarted && (
-  <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
-)}
+
 {result && (
-  <div className="w-full flex justify-center items-center ">
-    <div className="bg-gray-800 rounded p-4 max-w-xl" >
-      <h1 className="text-2xl text-center font-bold text-red-500">{result}</h1>
+  <div className="w-full flex  justify-center items-center mt-6">
+    <div className="bg-gray-800 rounded-lg p-4 w-[80vw] max-w-md border-2 border-white" >
+      <h1 className="text-xl text-center font-bold text-red-500">{result}</h1>
     </div>
   </div>
 )}
+{firstPlayer === userName && gameStarted ? (
+  <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
+) : (
+  <div className="w-screen  flex justify-center mt-12">
+    <p className="text-4xl text-white font-bold">{firstPlayer}'s Bid</p>
+  </div>
+)}
       {(firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
-        <div className=' bg-green w-screen flex justify-center '>
-          <button className="m-4 bg-purple-700 hover:bg-purple-700 text-2xl  text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
+        <div className=' fixed top-0  h-screen w-screen flex justify-center items-center '>
+          <button className=" border-2 border-white hover:border-purple-200  m-4 bg-purple-800 hover:bg-purple-700 text-3xl  text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
         </div>
       )}
 
@@ -206,9 +231,9 @@ socket.on("gameOver",(data)=> {
            </div>
 
 {currentRoom && (
-  <div className=" fixed w-screen bottom-6">
+
     <Table currentRoom={currentRoom} firstPlayer={firstPlayer} players={players} loserList={loserList}/>
-  </div>
+
 )}
     </div>
   );
