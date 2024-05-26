@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
-function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDiceAmount}) {
+function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDiceAmount,setVisibleCardState}) {
     const [visibleCard, setVisibleCard] = useState(null);
     const [selectedNumber, setSelectedNumber] = useState(null);
     const handleButtonClick = (number) => {
+        setVisibleCardState(true);
+
         setSelectedNumber(number);
     };
 
@@ -13,6 +15,7 @@ function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDice
     };
 const sendGuess =(number)=> {
     console.log(userName,"username inside send guess")
+        setVisibleCardState(true); // Add this line
 
    socket.emit('submitGuess', {guess:number, roomName:roomName, userName:userName});
 
@@ -71,7 +74,7 @@ const challengeGuess = () => {
     </div>
   <div className="text-center mb-4 flex items-center justify-center">
     {currentGuess.number !== 0 && currentGuess.amount !== 0 && (
-      <button className="p-2 mt-2 font-bold   rounded bg-red-700 text-white text-center" onClick={challengeGuess}>That's a Lie!</button>
+      <button  className="p-2 mt-2 font-bold   rounded bg-red-700 text-white text-center" onClick={challengeGuess}>That's a Lie!</button>
     )}
   </div>
   <div className=" bg-gray-700 flex justify-center rounded">

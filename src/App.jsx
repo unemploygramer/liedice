@@ -22,7 +22,8 @@ export default function App() {
     const [error, setError] = useState(null);
     const [loserList,setLoserList] = useState([])
     const [guesser,setGuesser] = useState('')
-
+    const [visibleCard, setVisibleCard] = useState(false);
+console.log(visibleCard,"visible card" )
   // Track if the player is the first player
 
   useEffect(() => {
@@ -54,8 +55,9 @@ const handleUpdateRoomData = (roomData) => {
 const handleGameStarted = (data) => {
   // Insert your existing logic for handling the start of a game here
     // Update the userRotation state with the received rotation data
+     setVisibleCard(true);
     setMyDiceAmount(6)
-
+setLoserList([])
     setUserRotation(data.rotation);
     setFirstPlayer(data.firstPlayer);
     setAmountOfDice(data.amountOfDice);
@@ -65,7 +67,9 @@ const handleGameStarted = (data) => {
 };
 
 const handleNextPlayer = (data) => {
+    console.log(data,"next player")
   // Insert your existing logic for handling the next player here
+  setVisibleCard(true);
       setCurrentGuess(data.currentGuess)
       setFirstPlayer(data.nextPlayer.userName)
           setGuesser(data.guesser) // Add this line
@@ -75,6 +79,7 @@ const handleNextPlayer = (data) => {
 
 const handleChallengeResult = (data) => {
   // Insert your existing logic for handling the result of a challenge here
+  setVisibleCard(false);
       const { isLie, users, rotation, numberOfDice, nextPlayer, totalDice, message } = data;
   console.log(data,"challenge result")
       // Update the state variables with the received data
@@ -87,6 +92,7 @@ const handleChallengeResult = (data) => {
 
 const handleUpdateRotation = (data) => {
   // Insert your existing logic for handling an update to the rotation here
+  setVisibleCard(false);
   console.log(data,"rotation update")
   setLoserList(data.usersOut)
     setUserRotation(data.rotation);
@@ -98,18 +104,44 @@ const handleUpdateRotation = (data) => {
 };
 
 const handleGameOver = (data) => {
+    setGameStarted(false);
   // Insert your existing logic for handling the end of a game here
+  setVisibleCard(false);
       console.log(data,"game over")
       if(data.winner === userName) {
         setResult("You won the game!")
+        setFirstPlayer(data.winner)
                 setIsWinner(true); // Set isWinner to true when the current user wins
 
       } else {
-        setResult(`${data.winner} the game!`)
+        setResult(`${data.winner} won  the game!`)
         setMyDiceAmount(0)
 
       }
 };
+  const handleRoomClosed = (data) => {
+    // Display the message to the user
+    alert(data.message);
+
+    // Reset the room state
+  setPlayerOneName('');
+  setRoomName('');
+  setCurrentRoom('');
+  setUserName('');
+  setUserRotation([]);
+  setFirstPlayer('');
+  setCurrentGuess({number:0,amount:0});
+  setAmountOfDice(6);
+  setMyDiceAmount(6);
+  setGameStarted(false);
+  setResult('');
+  setIsWinner(false);
+  setPlayers([]);
+  setError(null);
+  setLoserList([]);
+  setGuesser('');
+  setVisibleCard(false);
+  };
   socket.on('connect', handleConnect);
   socket.on('error', handleError);
   socket.on('updateRoomData', handleUpdateRoomData);
@@ -118,6 +150,8 @@ const handleGameOver = (data) => {
   socket.on('challengeResult', handleChallengeResult);
   socket.on('updateRotation', handleUpdateRotation);
   socket.on('gameOver', handleGameOver);
+    socket.on('roomClosed', handleRoomClosed);
+
   return () => {
     socket.off('connect', handleConnect);
     socket.off('error', handleError);
@@ -127,6 +161,8 @@ const handleGameOver = (data) => {
     socket.off('challengeResult', handleChallengeResult);
     socket.off('updateRotation', handleUpdateRotation);
     socket.off('gameOver', handleGameOver);
+        socket.off('roomClosed', handleRoomClosed);
+
   };
 
   }, [userName]);
@@ -147,7 +183,7 @@ const handleGameOver = (data) => {
   };
 
   return (
-    <div className='  h-screen w-screen bg-felt bg-cover'>
+    <div className='  h-screen bg-felt w-screen  bg-cover'>
       {currentRoom === "" &&(
 <div className="flex justify-center items-center">
   <div className="bg-gray-800 rounded-xl  mt-6 text-white p-6 shadow-lg w-[80vw] max-w-md">
@@ -202,7 +238,7 @@ const handleGameOver = (data) => {
   )}
 
 
-{result && (
+{result && visibleCard === false && (
   <div className="w-full flex  justify-center items-center mt-6">
     <div className="bg-gray-800 rounded-lg p-4 w-[80vw] max-w-md border-2 border-white" >
       <h1 className="text-xl text-center font-bold text-red-500">{result}</h1>
@@ -210,14 +246,14 @@ const handleGameOver = (data) => {
   </div>
 )}
 {firstPlayer === userName && gameStarted ? (
-  <MakeaGuess currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
-) : (
+  <MakeaGuess setVisibleCardState={setVisibleCard} currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
+) : gameStarted ? (
   <div className="w-screen  flex justify-center mt-12">
     <p className="text-4xl text-white font-bold">{firstPlayer}'s Bid</p>
   </div>
-)}
+) : null}
       {(firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
-        <div className=' fixed top-0  h-screen w-screen flex justify-center items-center '>
+        <div className='  flex justify-center items-center '>
           <button className=" border-2 border-white hover:border-purple-200  m-4 bg-purple-800 hover:bg-purple-700 text-3xl  text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
         </div>
       )}
