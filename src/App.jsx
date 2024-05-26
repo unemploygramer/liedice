@@ -23,6 +23,9 @@ export default function App() {
     const [loserList,setLoserList] = useState([])
     const [guesser,setGuesser] = useState('')
     const [visibleCard, setVisibleCard] = useState(false);
+      const [animationState, setAnimationState] = useState('');
+                      const diceAudio = new Audio('/diceRoll.mp3');
+                          diceAudio.volume = 0.2;
 console.log(visibleCard,"visible card" )
   // Track if the player is the first player
 
@@ -37,12 +40,14 @@ const handleError = (error) => {
   // Insert your existing logic for handling an error here
       // Set the error message
       setError(error.message);
+                      setRoomName("");
         setCurrentRoom('');
+        setAnimationState("");
 };
 
 const handleUpdateRoomData = (roomData) => {
   // Insert your existing logic for handling updated room data here
-
+                                                                          setError("");
         setPlayerOneName(roomData.firstPlayer.userName);
        setUserRotation(roomData.currentUser.rotation)
      setFirstPlayer(roomData.firstPlayer.userName)
@@ -53,6 +58,9 @@ const handleUpdateRoomData = (roomData) => {
 };
 
 const handleGameStarted = (data) => {
+                                                                              setError("");
+                                                  diceAudio.play();
+
   // Insert your existing logic for handling the start of a game here
     // Update the userRotation state with the received rotation data
      setVisibleCard(true);
@@ -67,6 +75,8 @@ setLoserList([])
 };
 
 const handleNextPlayer = (data) => {
+                                                                              setError("");
+
     console.log(data,"next player")
   // Insert your existing logic for handling the next player here
   setVisibleCard(true);
@@ -78,6 +88,8 @@ const handleNextPlayer = (data) => {
 };
 
 const handleChallengeResult = (data) => {
+                                                                              setError("");
+
   // Insert your existing logic for handling the result of a challenge here
   setVisibleCard(false);
       const { isLie, users, rotation, numberOfDice, nextPlayer, totalDice, message } = data;
@@ -88,9 +100,18 @@ const handleChallengeResult = (data) => {
       setFirstPlayer(nextPlayer);
       setAmountOfDice(totalDice);
       setResult(message);
+        if (nextPlayer === userName && gameStarted) {
+          setAnimationState('makeAGuess');
+        }
+
+
+
 };
 
 const handleUpdateRotation = (data) => {
+                                                                              setError("");
+                  diceAudio.play();
+
   // Insert your existing logic for handling an update to the rotation here
   setVisibleCard(false);
   console.log(data,"rotation update")
@@ -104,6 +125,8 @@ const handleUpdateRotation = (data) => {
 };
 
 const handleGameOver = (data) => {
+                                                                              setError("");
+
     setGameStarted(false);
   // Insert your existing logic for handling the end of a game here
   setVisibleCard(false);
@@ -122,6 +145,7 @@ const handleGameOver = (data) => {
   const handleRoomClosed = (data) => {
     // Display the message to the user
     alert(data.message);
+    setError(data.message);
 
     // Reset the room state
   setPlayerOneName('');
@@ -163,6 +187,7 @@ const handleGameOver = (data) => {
     socket.off('gameOver', handleGameOver);
         socket.off('roomClosed', handleRoomClosed);
 
+
   };
 
   }, [userName]);
@@ -170,23 +195,33 @@ const handleGameOver = (data) => {
   const handleRoomSubmit = (e) => {
     e.preventDefault();
     if (roomName.trim() !== '' && userName.trim() !== '') {
-      setCurrentRoom(roomName);
+        setAnimationState('joinRoom');
       // Here you can emit an event to the server to join the room
+          setTimeout(() => {
+      setCurrentRoom(roomName);
+            // Emit the joinRoom event after the delay
       socket.emit('joinRoom', { roomName, userName });
+          }, 200); // This should match the duration of your delay
+
     }
   };
 
   // Function to start the game
   const startGame = () => {
     // You can emit an event to the server to start the game
+      setAnimationState('startGame');
+
+
     socket.emit('startGame', roomName);
+
   };
 
   return (
     <div className='  h-screen bg-felt w-screen  bg-cover'>
-      {currentRoom === "" &&(
+{(!currentRoom || error) && (
+
 <div className="flex justify-center items-center">
-  <div className="bg-gray-800 rounded-xl  mt-6 text-white p-6 shadow-lg w-[80vw] max-w-md">
+          <div className={`bg-gray-800 rounded-xl mt-6 text-white shadow-lg p-6 shadow-lg w-[80vw] max-w-md ${animationState === 'joinRoom' ? 'animate-slideOut' : 'animate-slideIn'}`}>
     <form onSubmit={handleRoomSubmit} className="text-white">
       <div className="mb-4">
         <label className="block text-gray-200 text-sm font-bold mb-2" htmlFor="roomName">
@@ -232,7 +267,7 @@ const handleGameOver = (data) => {
         {guesser}
     </div>
     <p className="text-xl text-purple-400">
-        {`"${currentGuess.amount} ${currentGuess.number}'s"`}
+        {`"${currentGuess.amount}  ${currentGuess.number}'s"`}
     </p>
 </div>
   )}
@@ -246,21 +281,27 @@ const handleGameOver = (data) => {
   </div>
 )}
 {firstPlayer === userName && gameStarted ? (
-  <MakeaGuess setVisibleCardState={setVisibleCard} currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName}  />
-) : gameStarted ? (
+<MakeaGuess setVisibleCardState={setVisibleCard} currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName} animationState={animationState} setAnimationState={setAnimationState} />) : gameStarted ? (
   <div className="w-screen  flex justify-center mt-12">
     <p className="text-4xl text-white font-bold">{firstPlayer}'s Bid</p>
   </div>
 ) : null}
-      {(firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
-        <div className='  flex justify-center items-center '>
-          <button className=" border-2 border-white hover:border-purple-200  m-4 bg-purple-800 hover:bg-purple-700 text-3xl  text-white font-bold py-2 px-4 rounded" onClick={startGame}>Start Game</button>
-        </div>
-      )}
+{players.length >= 2 && (firstPlayer === userName || isWinner) && !gameStarted && currentRoom && (
+  <div className='flex justify-center items-center '>
+    <button className={`border-2 border-white hover:border-purple-200 m-4 bg-purple-800 hover:bg-purple-700 text-3xl text-white font-bold py-2 px-4 rounded animate-slideIn`} onClick={startGame}>Start Game</button>
+  </div>
+)}
+{currentRoom && players.length < 2 && (
+  <div className='flex justify-center items-center mt-4 '>
+      <div className="bg-gray-800 rounded p-4 w-[80vw] max-w-[360px]">
+    <p className="text-2xl text-white">Waiting for at least one more player...</p>
+    </div>
+  </div>
+)}
 
            <div className="flex justify-center items-center ">
              {error ? (
-               <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+               <div className="bg-gray-800 w-[80vw] max-w-[360px] text-center  shadow-md rounded px-8 pt-6 pb-8 mb-4">
                  <h1 className="text-red-500 text-2xl font-bold">{error}</h1>
                </div>
              ) : null}

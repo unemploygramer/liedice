@@ -128,7 +128,7 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
       <div className='h-64 w-screen'>
       <Suspense fallback={<div className="bg-red-500 h-screen w-screen">Loading...</div>}>
     <Canvas shadows >
-        <OrbitControls />
+{/*         <OrbitControls /> */}
           <directionalLight
             position={[10, 10, 10]} // Position the key light
             intensity={1.0} // Adjust the brightness of the key light
@@ -154,7 +154,6 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
         rotation={[-Math.PI / 5, 0, 0]}
         position={[0, -8, 0]}
         args={[30, 30]}
-          receiveShadow // Add this line
 
       >
             <meshStandardMaterial attach="material" map={texture} />

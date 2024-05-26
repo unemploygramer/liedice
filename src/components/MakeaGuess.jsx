@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDiceAmount,setVisibleCardState}) {
+function MakeaGuess({currentGuess, amountOfDice, socket, roomName, userName, myDiceAmount, setVisibleCardState, animationState, setAnimationState}) {
     const [visibleCard, setVisibleCard] = useState(null);
     const [selectedNumber, setSelectedNumber] = useState(null);
     const handleButtonClick = (number) => {
@@ -16,10 +16,12 @@ function MakeaGuess({currentGuess, amountOfDice, socket,roomName,userName,myDice
 const sendGuess =(number)=> {
     console.log(userName,"username inside send guess")
         setVisibleCardState(true); // Add this line
+  setAnimationState('makeGuess'); // Add this line
 
-   socket.emit('submitGuess', {guess:number, roomName:roomName, userName:userName});
-
-console.log(number,"value inside the send guess")
+  setTimeout(() => {
+    socket.emit('submitGuess', {guess:number, roomName:roomName, userName:userName});
+    console.log(number,"value inside the send guess")
+  }, 200); // This should match the duration of your delay
     }
 
 
@@ -69,8 +71,7 @@ const challengeGuess = () => {
 // <button onClick={challengeGuess}>That's a Lie!</button>
     return (
         <div className="w-screen flex justify-center mt-2">
-<div className='p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-[420px]  bg-gray-800' style={{ paddingBottom: '50px' }}>
-    <div className="w-full  flex justify-center">
+<div className={`p-4 flex flex-col shadow-lg rounded-lg w-[80vw] max-w-[420px] bg-gray-800 animate-slideIn`} style={{ paddingBottom: '50px' }}>    <div className="w-full  flex justify-center">
     </div>
   <div className="text-center mb-4 flex items-center justify-center">
     {currentGuess.number !== 0 && currentGuess.amount !== 0 && (
