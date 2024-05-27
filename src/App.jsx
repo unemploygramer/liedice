@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import ThreeD from "./components/ThreeD"
-const socket = io("http://localhost:4000");
+// const socket = io("http://localhost:4000");
+const socket = io("https://lit-chamber-08356-37e21c06366f.herokuapp.com/");
+
+// https://lit-chamber-08356-37e21c06366f.herokuapp.com/
 import MakeaGuess from "./components/MakeaGuess"
 import Table from "./components/Table"
 export default function App() {
