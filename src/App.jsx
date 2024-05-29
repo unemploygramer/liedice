@@ -220,7 +220,7 @@ const handleGameOver = (data) => {
   };
 
   return (
-    <div className='  h-screen bg-felt w-screen  bg-cover'>
+    <div className='  h-screen  w-screen bg-black  bg-cover'>
 {(!currentRoom || error) && (
 
 <div className="flex justify-center items-center">
@@ -262,8 +262,14 @@ const handleGameOver = (data) => {
 </div>
 
       )}
-
 <ThreeD userRotations={userRotation} myDiceAmount={myDiceAmount} />
+{firstPlayer !== userName && !gameStarted && currentRoom && (
+  <div className='flex justify-center items-center mt-4 '>
+      <div className="bg-gray-800 rounded p-4 w-[80vw] max-w-[360px]">
+    <p className="text-2xl text-white">{`Waiting for ${firstPlayer} to start the game...`}</p>
+    </div>
+  </div>
+)}
   {currentGuess.amount > 0 && (
 <div className="border-2 border-white bg-gray-800 p-2 rounded-lg shadow-md mx-auto text-center text-white font-bold max-w-[300px]  mt-2 flex flex-row items-center justify-center">
     <div className="text-gray-500 text-lg">
