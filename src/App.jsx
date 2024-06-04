@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import ThreeD from "./components/ThreeD"
-// const socket = io("http://localhost:4000");
-const socket = io("https://liedice-3d6676b45c31.herokuapp.com/");
+const socket = io("http://localhost:4000");
+// const socket = io("https://liedice-3d6676b45c31.herokuapp.com/");
 
 // https://lit-chamber-08356-37e21c06366f.herokuapp.com/
 import MakeaGuess from "./components/MakeaGuess"
@@ -289,6 +289,7 @@ const handleGameOver = (data) => {
     </div>
   </div>
 )}
+
 {firstPlayer === userName && gameStarted ? (
 <MakeaGuess setVisibleCardState={setVisibleCard} currentGuess={currentGuess} amountOfDice={amountOfDice} myDiceAmount={myDiceAmount} socket={socket} roomName={roomName} userName={userName} animationState={animationState} setAnimationState={setAnimationState} />) : gameStarted ? (
   <div className="w-screen  flex justify-center mt-12">

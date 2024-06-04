@@ -162,12 +162,12 @@ const ThreeD = ({userRotations, myDiceAmount}) => {
 
 {/*       <pointLight castShadow position={[0, 2, 2]} /> */}
 
-{myDiceAmount > 0 && <Dice userRotations={dice1rotation} position={[2.5, 0, -1]} />}
-{myDiceAmount > 1 && <Dice userRotations={dice2rotation} position={[-2.5, 0, -1]} />}
-{myDiceAmount > 2 && <Dice userRotations={dice3rotation} position={[0, 2.5, -1]} />}
-{myDiceAmount > 3 && <Dice userRotations={dice4rotation} position={[0, -2.5, -1]} />}
-{myDiceAmount > 4 && <Dice userRotations={dice5rotation} position={[2.5, 2.5, -1]} />}
-{myDiceAmount > 5 && <Dice userRotations={dice6rotation} position={[0, 0, -1]} />}
+{myDiceAmount > 0 && <Dice userRotations={dice1rotation} position={[2.5, -1, -1]} />}
+{myDiceAmount > 1 && <Dice userRotations={dice2rotation} position={[-2.5, -1, -1]} />}
+{myDiceAmount > 2 && <Dice userRotations={dice3rotation} position={[0, 1.5, -1]} />}
+{myDiceAmount > 3 && <Dice userRotations={dice4rotation} position={[-2.5, 1.5, -1]} />}
+{myDiceAmount > 4 && <Dice userRotations={dice5rotation} position={[2.5, 1.5, -1]} />}
+{myDiceAmount > 5 && <Dice userRotations={dice6rotation} position={[0, -1, -1]} />}
 
 
 

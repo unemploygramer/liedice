@@ -1,13 +1,93 @@
-import React, { useState } from 'react';
+
+import { useSpring, animated } from '@react-spring/three'
+import { Canvas, useFrame,useLoader} from '@react-three/fiber'
+import { TextureLoader } from 'three';
+import { Object3D } from 'three';
+
+import { useRef,useState,Suspense } from 'react';
+import Cylinder from "../components/Cylinder"
+import {OrbitControls, Plane} from "@react-three/drei"
 
 function MakeaGuess({currentGuess, amountOfDice, socket, roomName, userName, myDiceAmount, setVisibleCardState, animationState, setAnimationState}) {
     const [visibleCard, setVisibleCard] = useState(null);
     const [selectedNumber, setSelectedNumber] = useState(null);
+      const [active, setActive] = useState(false);
+
+
     const handleButtonClick = (number) => {
         setVisibleCardState(true);
 
         setSelectedNumber(number);
     };
+function Dice(props) {
+
+  const meshRef = useRef();
+  const [hovered, setHover] = useState(false);
+  const [active, setActive] = useState(false);
+  const [rotation, setRotation] = useState([0, 0, 0]);
+  const [newRotation, setNewRotation] = useState([0,0,0])
+  const spring = useSpring({
+    from: { rotation: [0,0,0]},
+    to: { rotation: props.userRotations},
+    config: { tension: 300, friction: 30 },
+  });
+
+  const handleClick = () => {
+    setActive(!active);
+    // setNewRotation(rollDice())
+
+
+  };
+
+  return (
+    <animated.mesh
+      {...props}
+      ref={meshRef}
+      rotation={spring.rotation}
+      onClick={handleClick}
+      onPointerOver={() => setHover(true)}
+      onPointerOut={() => setHover(false)}
+        castShadow // Add this line
+
+    >
+      <boxGeometry args={[2, 2, 2]} />
+      <meshStandardMaterial color={hovered ? "red" : "#bf0a0a"} />
+      {[...Array(21)].map((_, index) => {
+        const { position, rotation } = getPosition(index);
+        return <Cylinder key={index} position={position} rotation={rotation} />;
+      })}
+    </animated.mesh>
+  );
+}
+
+
+
+function getPosition(index) {
+  const positions = [
+    { position: [0.6, 1, 0.6], rotation: [0, 0, 0] }, // Top
+    { position: [0.6, 1, 0], rotation: [0, 0, 0] }, // Top
+    { position: [-0.6, 1, 0], rotation: [0, 0, 0] }, // Top
+    { position: [-0.6, 1, 0.6], rotation: [0, 0, 0] }, // Top
+    { position: [0.6, 1, -0.6], rotation: [0, 0, 0] }, // Top
+    { position: [-0.6, 1, -0.6], rotation: [0, 0, 0] }, // Top
+    { position: [0, -1, 0], rotation: [0, 0, 0] }, // Bottom 1
+    { position: [1, 0.6, 0.6], rotation: [0, 0,Math.PI/2 ] }, // Right 2
+    { position: [1, -0.6, -0.6], rotation: [0, 0,Math.PI/2 ] }, // Right 2
+    { position: [-1, 0, 0], rotation: [0, 0, Math.PI / 2] }, // Left 5
+    { position: [-1, 0.6, 0.6], rotation: [0, 0, Math.PI / 2] }, // Left 5
+    { position: [-1, 0.6, -0.6], rotation: [0, 0, Math.PI / 2] }, // Left 5
+    { position: [-1, -0.6, -0.6], rotation: [0, 0, Math.PI / 2] }, // Left 5
+    { position: [-1, -0.6, 0.6], rotation: [0, 0, Math.PI / 2] }, // Left 5
+    { position: [.6, 0.6, 1], rotation: [Math.PI/2, 0, 0] }, // Front 4
+    { position: [.6, -0.6, 1], rotation: [Math.PI/2, 0, 0] }, // Front 4
+    { position: [-.6, .6, 1], rotation: [Math.PI/2, 0, 0] }, // Front 4
+    { position: [-.6, -.6, 1], rotation: [Math.PI/2, 0, 0] }, // Front 4
+    { position: [0, 0, -1], rotation: [Math.PI/2, 0, 0] }, // Back
+    { position: [-0.6, 0.6, -1], rotation: [Math.PI/2, 0, 0] }, // Back
+    { position: [0.6, -0.6, -1], rotation: [Math.PI/2, 0, 0] }, // Back
+  ];
+  return positions[index];
+}
 
     const numberToWord = (number) => {
         const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
@@ -18,10 +98,11 @@ const sendGuess =(number)=> {
         setVisibleCardState(true); // Add this line
   setAnimationState('makeGuess'); // Add this line
 
-  setTimeout(() => {
+
     socket.emit('submitGuess', {guess:number, roomName:roomName, userName:userName});
-    console.log(number,"value inside the send guess")
-  }, 200); // This should match the duration of your delay
+
+
+
     }
 
 
@@ -81,6 +162,7 @@ const challengeGuess = () => {
   <div className=" bg-gray-700 flex justify-center rounded">
 
     {renderButtons()}
+
   </div>
   <div className="flex flex-wrap justify-center text-white max-h-[140px] overflow-y-auto  w-full ">
 
